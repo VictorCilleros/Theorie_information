@@ -1,0 +1,283 @@
+<html>
+<head>
+<title>TP1-MdP-P3.ipynb</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.s0 { color: #808080;}
+.s1 { color: #a9b7c6;}
+.s2 { color: #cc7832;}
+.s3 { color: #6a8759;}
+.s4 { color: #6897bb;}
+</style>
+</head>
+<body bgcolor="#2b2b2b">
+<table CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#606060" >
+<tr><td><center>
+<font face="Arial, Helvetica" color="#000000">
+TP1-MdP-P3.ipynb</font>
+</center></td></tr></table>
+<pre><span class="s0">#%% md 
+</span><span class="s1"># Noms du binome: CILLEROS JEAN 
+ 
+# Prénoms du binome: Victor Jérémy 
+ 
+## Note: exporter le compte rendu basé sur le notebook au format pdf 
+ 
+</span><span class="s0">#%% md 
+</span><span class="s1"># Entropie et génération de mots de passe 
+* L'objectif de ce tp est de continuer à se familiariser avec la notion d'entropie, mais aussi de comprendre le lien qu'il existe entre cette mesure informationelle et la sécurité d'un générateur (humain ou executable) de mots de passes 
+* Ainsi, nous proposons d'étudier l'entropie d'un tel générateur, et ce en fonction du modèle probabiliste considéré pour le modéliser (contruit à partir d'une lettre, de deux lettres, de 4 lettres, ...). A l'aide de tirrages aléatoires, nous estimerons également le temps moyen nécessaire pour trouver un mot de passe à partir de ce modèle. 
+* A la fin de ce TP, nous considérerons un générateur de mots de passe spécifique qui générera un mot de passe en prennant **8 lettres consécutives dans un texte** (sans se soucier des espaces). Ces lettres peuvent faire parti d'un ou de plusieurs mots consécutifs. 
+* Nous faisons l'hypothèse que le texte n'est composé que des 26 lettres de l'alphabet, sans majuscules ni accents 
+ 
+Nous chercherons aussi à comprendre (voir dernière question): 
+- les bonnes pratiques pour le défenseur, i.e. la personne cherchant à générer/construire un système de génération de mots de passe. 
+- les bonnes pratiques pour l'attaquant, i.e. la personne essayant de trouver le mot de passe. 
+ 
+**Il est important de commenter vos réponses, en utilisant des cellules markdown** 
+ 
+</span><span class="s0">#%% 
+</span><span class="s2">import </span><span class="s1">numpy </span><span class="s2">as </span><span class="s1">np</span>
+
+<span class="s2">from </span><span class="s1">numpy </span><span class="s2">import </span><span class="s1">genfromtxt</span>
+<span class="s2">from </span><span class="s1">pandas </span><span class="s2">import </span><span class="s1">read_csv</span>
+<span class="s2">import </span><span class="s1">pandas </span><span class="s2">as </span><span class="s1">pd</span>
+<span class="s2">import </span><span class="s1">time</span>
+<span class="s0">#%% md 
+</span><span class="s1">#### Modèle monogramme (une lettre) 
+* On récupére des données composées de [lettre,frequence d'apparition de la lettre] (voir fichier csv pour [comma-separated-value](https://en.wikipedia.org/wiki/Comma-separated_values))  
+</span><span class="s0">#%% 
+</span><span class="s1">monogramme = read_csv(</span><span class="s3">'monogramme.csv'</span><span class="s1">)</span>
+<span class="s1">freq_mono = (monogramme[</span><span class="s3">'frequency'</span><span class="s1">]).values</span>
+<span class="s1">letters_mono = (monogramme[</span><span class="s3">'letters'</span><span class="s1">]).values</span>
+
+
+<span class="s0">#%% md 
+</span><span class="s1">Q: Quelles sont les 5 lettres les plus représentées ? 
+</span><span class="s0">#%% 
+# TO DO</span>
+<span class="s1">monogramme.sort_values(by=</span><span class="s3">'frequency'</span><span class="s2">, </span><span class="s1">ascending=</span><span class="s2">False</span><span class="s1">).letters.iloc[:</span><span class="s4">5</span><span class="s1">]</span>
+<span class="s0">#%% md 
+</span><span class="s1">Les 5 lettres les plus représentées sont :  
+E S A N T 
+</span><span class="s0">#%% md 
+</span><span class="s1">Ecrire une fonction qui calcule l'entropie à partir d'un vecteur constitué de probabilités empiriques (note, il est important de bien &quot;gérer le cas ou la probabilité est nulle). 
+</span><span class="s0">#%% 
+</span><span class="s2">def </span><span class="s1">entropie(freq):</span>
+    <span class="s1">ent = </span><span class="s4">0</span>
+    <span class="s2">for </span><span class="s1">f </span><span class="s2">in </span><span class="s1">freq:</span>
+        <span class="s2">if </span><span class="s1">f&gt;</span><span class="s4">0</span><span class="s1">:</span>
+            <span class="s1">ent -= f*np.log2(f)</span>
+    <span class="s2">return </span><span class="s1">ent</span>
+<span class="s0">#%% md 
+</span><span class="s1">Q: en utilisant ce modèle probabiliste pour générer un mot de passe, quelle est l'entropie d'un mot de passe de 8 lettres ? 
+</span><span class="s0">#%% 
+# TO DO</span>
+<span class="s1">print(</span><span class="s3">f&quot;L'entropie pour un mot de passe de 8 lettres avec cde modèle probabiliste est minimale pour : </span><span class="s2">{</span><span class="s1">round(</span><span class="s4">8</span><span class="s1">*entropie(monogramme[</span><span class="s3">'frequency'</span><span class="s1">].tolist())</span><span class="s2">,</span><span class="s4">4</span><span class="s1">)</span><span class="s2">} </span><span class="s3">bits.&quot;</span><span class="s1">)</span>
+<span class="s0">#%% md 
+</span><span class="s1">Q: A l'aide de la fonction `np.random.choice()`, estimer le temps nécessaire en secondes pour tirer 100 000 mots de passes en utilisant ce générateur ? (note: ici le tirage n'est pas forcemment réaliste, car aléatoire, mais l'idée est surtout de mesurer le temps minimal nécessaire pour générer N mots de passes). 
+</span><span class="s0">#%% 
+# TO DO</span>
+<span class="s1">t_100000=</span><span class="s4">0</span>
+<span class="s1">letters = monogramme.letters.tolist()</span>
+<span class="s1">proba=monogramme.frequency.tolist()</span>
+<span class="s1">nbEssais=</span><span class="s4">100_000</span>
+<span class="s2">for </span><span class="s1">__ </span><span class="s2">in </span><span class="s1">range(</span><span class="s4">10</span><span class="s1">):</span>
+    <span class="s1">t = time.time()</span>
+    <span class="s1">essai= np.random.choice(letters</span><span class="s2">,</span><span class="s1">p=proba</span><span class="s2">,</span><span class="s1">size=(nbEssais</span><span class="s2">,</span><span class="s4">8</span><span class="s1">))</span>
+    <span class="s1">t_100000 += time.time() - t</span>
+<span class="s1">tempsref = t_100000/</span><span class="s4">10</span>
+<span class="s1">print(</span><span class="s3">f&quot;Le temps nécessaire pour tirer 100 000 mots de passe est : </span><span class="s2">{</span><span class="s1">tempsref</span><span class="s2">} </span><span class="s3">s&quot;</span><span class="s1">)</span>
+<span class="s0">#%% md 
+</span><span class="s1">Ici calcul de ce temps est une moyenne sur 10 essais  
+</span><span class="s0">#%% md 
+</span><span class="s1">Nous definissons l'&quot;entropie du devin&quot; G (guessing entropie) comme le **nombre moyen d'essais successif nécessaires pour trouver un mot de passe à partir de notre générateur**. 
+    On peut montrer que $G\geq 2^H/4+1$ où $H$ est l'entropie de la source (voir le papier Password_Entropy_and_Password_Quality.pdf ) 
+</span><span class="s0">#%% md 
+</span><span class="s1">Q: calculer le minorant de $G$ pour ce modèle 
+</span><span class="s0">#%% 
+# TO DO</span>
+<span class="s1">H=</span><span class="s4">8</span><span class="s1">*entropie(monogramme[</span><span class="s3">'frequency'</span><span class="s1">].tolist())</span>
+<span class="s1">minG=(</span><span class="s4">2</span><span class="s1">**H/</span><span class="s4">4</span><span class="s1">)+</span><span class="s4">1</span>
+<span class="s1">print(</span><span class="s3">f&quot;La valeur du minorant est : </span><span class="s2">{</span><span class="s1">int(minG)</span><span class="s2">}</span><span class="s3">&quot;</span><span class="s1">)</span>
+<span class="s0">#%% md 
+</span><span class="s1">Q: combien de temps cela prendra-t-il pour générer un mot de passe si l'on suppose qu'il est possible de prendre le générateur codé précédemment ? (en minutes) 
+</span><span class="s0">#%% 
+# TO DO</span>
+<span class="s1">print(</span><span class="s3">f&quot;Il faut en moyenne : </span><span class="s2">{</span><span class="s1">((tempsref*minG)/</span><span class="s4">100000</span><span class="s1">)/</span><span class="s4">60</span><span class="s2">} </span><span class="s3">minutes &quot;</span><span class="s1">)</span>
+<span class="s0">#%% md 
+</span>
+<span class="s0">#%% md 
+</span><span class="s1">On propose maintenant d'utiliser un modèle plus évolué qui est construit à partir de la probabilité conjointe de deux lettres successives (bigramme) 
+</span><span class="s0">#%% 
+</span><span class="s1">bigramme = read_csv(</span><span class="s3">'bigramme.csv'</span><span class="s2">,</span><span class="s1">keep_default_na=</span><span class="s2">False</span><span class="s1">)</span>
+<span class="s1">print(bigramme.head(</span><span class="s4">5</span><span class="s1">))</span>
+<span class="s1">freq_bi = (bigramme[</span><span class="s3">'frequency'</span><span class="s1">]).values</span>
+<span class="s1">letters_bi = (bigramme[</span><span class="s3">'letters'</span><span class="s1">]).values</span>
+<span class="s0">#%% md 
+</span><span class="s1">Q: Quelles sont les 5 couples de lettres les plus représentés ? 
+</span><span class="s0">#%% 
+# TO DO</span>
+<span class="s1">bigramme.sort_values(by=</span><span class="s3">'frequency'</span><span class="s2">, </span><span class="s1">ascending=</span><span class="s2">False</span><span class="s1">).letters.iloc[:</span><span class="s4">5</span><span class="s1">]</span>
+<span class="s0">#%% md 
+</span><span class="s1">Les cinq couples les plus représentés sont : 
+ES - EN - DE - LE - NT 
+</span><span class="s0">#%% md 
+</span><span class="s1">Q: en utilisant ce modèle probabiliste pour générer un mot de passe, quelle est l'entropie d'un mot de passe de 8 lettres ? 
+</span><span class="s0">#%% 
+</span><span class="s1">print(</span><span class="s3">f&quot;L'entropie pour un mot de passe de 8 lettres avec cde modèle probabiliste est minimale pour : </span><span class="s2">{</span><span class="s1">round(</span><span class="s4">4</span><span class="s1">*entropie(bigramme[</span><span class="s3">'frequency'</span><span class="s1">].tolist())</span><span class="s2">,</span><span class="s4">4</span><span class="s1">)</span><span class="s2">} </span><span class="s3">bits.&quot;</span><span class="s1">)</span>
+<span class="s0">#%% md 
+</span><span class="s1">Q: Pourquoi cette entropie est-elle inférieure à celle du modèle construit sur des monogrammes ? Quelle propriété théorique de l'entropie peut justifier ce constat  ? 
+</span><span class="s0">#%% md 
+</span><span class="s1">D'après le cours (entropie conditionnelle) on a : $H(X,Y) &lt;= H(X) + H(Y)$  
+ 
+Ainsi on a $H(X,X) &lt;= 2*H(X)$ 
+ 
+Nécessairement $4*H(X,X) &lt;= 8*H(X)$ 
+</span><span class="s0">#%% md 
+</span><span class="s1">Q: A l'aide de la fonction `np.random.choice()`, calculer le temps nécessaire en secondes pour tirer 100 000 mots de passes en utilisant ce générateur ? 
+</span><span class="s0">#%% 
+# TO DO</span>
+<span class="s1">t_100000=</span><span class="s4">0</span>
+<span class="s1">letters = bigramme.letters.tolist()</span>
+<span class="s1">proba=bigramme.frequency.tolist()</span>
+<span class="s1">nbEssais=</span><span class="s4">100_000</span>
+<span class="s2">for </span><span class="s1">__ </span><span class="s2">in </span><span class="s1">range(</span><span class="s4">10</span><span class="s1">):</span>
+    <span class="s1">t = time.time()</span>
+    <span class="s1">essai= np.random.choice(letters</span><span class="s2">,</span><span class="s1">p=proba</span><span class="s2">,</span><span class="s1">size=(nbEssais</span><span class="s2">,</span><span class="s4">4</span><span class="s1">))</span>
+    <span class="s1">t_100000 += time.time() - t</span>
+<span class="s1">tempsrefBigramme = t_100000/</span><span class="s4">10</span>
+<span class="s1">print(</span><span class="s3">f&quot;Le temps nécessaire pour tirer 100 000 mots de passe est : </span><span class="s2">{</span><span class="s1">tempsrefBigramme</span><span class="s2">} </span><span class="s3">s&quot;</span><span class="s1">)</span>
+<span class="s0">#%% md 
+</span><span class="s1">Q: calculer le minorant de $G$ pour ce modèle 
+</span><span class="s0">#%% 
+# TO DO</span>
+<span class="s1">HBigramme=</span><span class="s4">4</span><span class="s1">*entropie(bigramme[</span><span class="s3">'frequency'</span><span class="s1">].tolist())</span>
+<span class="s1">minGBigramme=(</span><span class="s4">2</span><span class="s1">**HBigramme/</span><span class="s4">4</span><span class="s1">)+</span><span class="s4">1</span>
+<span class="s1">print(</span><span class="s3">f&quot;La valeur du minorant est : </span><span class="s2">{</span><span class="s1">int(minGBigramme)</span><span class="s2">}</span><span class="s3">&quot;</span><span class="s1">)</span>
+<span class="s0">#%% md 
+</span><span class="s1">Q: combien de temps cela prendra-t-il si l'on suppose qu'il est possible de prendre le générateur codé précédemment ? (en minutes) 
+</span><span class="s0">#%% 
+</span><span class="s1">print(</span><span class="s3">f&quot;Il faut en moyenne : </span><span class="s2">{</span><span class="s1">((tempsrefBigramme*minGBigramme)/</span><span class="s4">100000</span><span class="s1">)/</span><span class="s4">60</span><span class="s2">} </span><span class="s3">minutes &quot;</span><span class="s1">)</span>
+<span class="s0">#%% md 
+</span><span class="s1">Q: si maintenant on change de stratégie et on tire aléatoirement chaque lettre de l'alphabet de façon uniforme, quelle est l'entropie de ce nouveau générateur ? 
+</span><span class="s0">#%% 
+</span><span class="s1">H_unif = </span><span class="s4">8</span><span class="s1">* np.log2(</span><span class="s4">26</span><span class="s1">)</span>
+<span class="s1">print(</span><span class="s3">f&quot;Entropie maximale car cas uniforme : </span><span class="s2">{</span><span class="s1">H_unif</span><span class="s2">} </span><span class="s3">bit&quot;</span><span class="s1">)</span>
+<span class="s0">#%% md 
+</span><span class="s1">Q: A l'aide de la fonction `np.random.choice()`, calculer le temps nécessaire en secondes pour tirer 100 000 mots de passes en utilisant ce générateur ? 
+</span><span class="s0">#%% 
+# TO DO</span>
+<span class="s1">t_100000=</span><span class="s4">0</span>
+<span class="s1">letters = monogramme.letters.tolist()</span>
+<span class="s1">probaUnif=[</span><span class="s4">1</span><span class="s1">/</span><span class="s4">26 </span><span class="s2">for </span><span class="s1">i </span><span class="s2">in </span><span class="s1">range(len(letters))]</span>
+<span class="s1">nbEssais=</span><span class="s4">100_000</span>
+<span class="s2">for </span><span class="s1">__ </span><span class="s2">in </span><span class="s1">range(</span><span class="s4">10</span><span class="s1">):</span>
+    <span class="s1">t = time.time()</span>
+    <span class="s1">essai= np.random.choice(letters</span><span class="s2">,</span><span class="s1">p=probaUnif</span><span class="s2">,</span><span class="s1">size=(nbEssais</span><span class="s2">,</span><span class="s4">12</span><span class="s1">))</span>
+    <span class="s1">t_100000 += time.time() - t</span>
+<span class="s1">tempsrefUnif = t_100000/</span><span class="s4">10</span>
+<span class="s1">print(</span><span class="s3">f&quot;Le temps nécessaire pour tirer 100 000 mots de passe est : </span><span class="s2">{</span><span class="s1">tempsrefUnif</span><span class="s2">} </span><span class="s3">s&quot;</span><span class="s1">)</span>
+<span class="s0">#%% md 
+</span><span class="s1">Q: calculer le minorant de $G$ pour ce modèle 
+</span><span class="s0">#%% 
+</span><span class="s1">HUnif=</span><span class="s4">8</span><span class="s1">*entropie(probaUnif)</span>
+<span class="s1">minGUnif=(</span><span class="s4">2</span><span class="s1">**HUnif/</span><span class="s4">4</span><span class="s1">)+</span><span class="s4">1</span>
+<span class="s1">print(</span><span class="s3">f&quot;La valeur du minorant est : </span><span class="s2">{</span><span class="s1">int(minGUnif)</span><span class="s2">}</span><span class="s3">&quot;</span><span class="s1">)</span>
+<span class="s0">#%% md 
+</span><span class="s1">Q: dans ce cas précis, quelle est la valeur exacte de $G$? 
+</span><span class="s0">#%% md 
+</span><span class="s1">La valur exacte de G se calcule dans ce cas avec l'espérance du nombre de coups avant de tomber sur le mot de passe : 
+$ E(X=k) = \sum_{k=0}^{26^{8}}P(X=k)k $ 
+Avec $P(X=k) = \frac{1}{26^{8}} $ 
+D'ou $E(X) = G = \frac{26^{8} + 1}{2}$ 
+</span><span class="s0">#%% md 
+</span><span class="s1">Q: combien de temps cela prendra-t-il en utilisant le générateur codé précédemment ? (en minutes) 
+</span><span class="s0">#%% 
+</span><span class="s1">GexactUnif = ((</span><span class="s4">26</span><span class="s1">**</span><span class="s4">8</span><span class="s1">)+</span><span class="s4">1</span><span class="s1">)/</span><span class="s4">2</span>
+<span class="s1">print(</span><span class="s3">f&quot;Il faut en moyenne : </span><span class="s2">{</span><span class="s1">((tempsrefUnif*GexactUnif)/</span><span class="s4">100000</span><span class="s1">)/</span><span class="s4">60</span><span class="s2">} </span><span class="s3">minutes &quot;</span><span class="s1">)</span>
+<span class="s0">#%% md 
+</span><span class="s1">Q: implémenter une attaque pratique qui consiste à: 
+1. **pour le défenseur:** tirer un mot de passe de 4 lettres consécutives à partir de ce texte de Victor Hugo (texteFrancais.txt) tiré des Misérables.   
+2. **pour l'attaquant:** utiliser le modèle bigramme pour générer des mots de passe et minimiser le nombre d'essais. Pour cela on pourra : 
+    * dans un premier temps pré-calculer un **dictionnaire**, qui contriendra un nombre de MdP générés classés dans l'ordre du plus probable au moins probable et qui ne contient pas de doublons  
+    * dans un deuxième temps appeler ce dictionnaire pour comparer chacune de ses entrées au mot de passe généré. 
+3. Il faudra faire ses tests plusieurs fois afin de d'obtenir un nombre moyens d'appel au dictionnaire nécessaire 
+4. Il sera intéressant de comparer le nombre trouvé à la valeur de G (qui est une borne inférieure) 
+5. Question annexe: Par un simple calcul, si le générateur utilisé n'est plus ce générateur mais un générateur qui tire chaque lettre de façon équiprobable, rappeler la valeur de G. Comparer cette valeur avec la valeur trouvée en utilisant la stratégie &quot;des 4 lettres consécutives&quot;. 
+</span><span class="s0">#%% 
+</span><span class="s2">from </span><span class="s1">unidecode </span><span class="s2">import </span><span class="s1">unidecode</span>
+<span class="s2">import </span><span class="s1">re</span>
+<span class="s1">pattern = </span><span class="s3">r'[^A-Za-z0-9]+'</span>
+<span class="s0">## Fonction générant un mot de passe</span>
+<span class="s2">def </span><span class="s1">get_passwd():</span>
+    <span class="s1">text_hugo = open(</span><span class="s3">&quot;texteFrancais.txt&quot;</span><span class="s2">,</span><span class="s3">&quot;r&quot;</span><span class="s1">)</span>
+    <span class="s1">str_hugo = str(text_hugo.read())</span>
+
+    <span class="s0"># On remplace des lettres avec accent avec des lettres sans accent</span>
+    <span class="s1">str_hugo = str_hugo.replace(</span><span class="s3">&quot;Â&quot;</span><span class="s2">, </span><span class="s3">&quot;A&quot;</span><span class="s1">)</span>
+    <span class="s1">str_hugo = str_hugo.replace(</span><span class="s3">&quot;Ù&quot;</span><span class="s2">, </span><span class="s3">&quot;U&quot;</span><span class="s1">)</span>
+    <span class="s1">str_hugo = str_hugo.replace(</span><span class="s3">&quot;Ô&quot;</span><span class="s2">, </span><span class="s3">&quot;O&quot;</span><span class="s1">)</span>
+    <span class="s1">str_hugo = unidecode(str_hugo)</span>
+    <span class="s1">str_hugo = re.sub(pattern</span><span class="s2">, </span><span class="s3">''</span><span class="s2">, </span><span class="s1">str_hugo)</span>
+    <span class="s1">size_txt = len(str_hugo)</span>
+
+    <span class="s1">idx_rand = np.random.randint(size_txt-</span><span class="s4">4</span><span class="s1">)</span>
+    <span class="s0">#print(idx_rand)</span>
+
+    <span class="s1">psswd = str_hugo[idx_rand:idx_rand+</span><span class="s4">4</span><span class="s1">].upper()</span>
+    <span class="s2">return</span><span class="s1">(psswd)</span>
+<span class="s0">#%% 
+</span><span class="s2">import </span><span class="s1">itertools</span>
+
+<span class="s2">def </span><span class="s1">generate_dictionary():</span>
+    <span class="s1">mdp = []</span>
+    <span class="s1">proba = []</span>
+    <span class="s1">couples = list(itertools.combinations(bigramme.letters.tolist()</span><span class="s2">,</span><span class="s4">2</span><span class="s1">))</span>
+    <span class="s1">probs = list(itertools.combinations(bigramme.frequency.tolist()</span><span class="s2">,</span><span class="s4">2</span><span class="s1">))</span>
+    <span class="s2">for </span><span class="s1">c</span><span class="s2">, </span><span class="s1">p </span><span class="s2">in </span><span class="s1">zip(couples</span><span class="s2">,</span><span class="s1">probs):</span>
+        <span class="s1">mdp.append(c[</span><span class="s4">0</span><span class="s1">] + c[</span><span class="s4">1</span><span class="s1">])</span>
+        <span class="s1">mdp.append(c[</span><span class="s4">1</span><span class="s1">] + c[</span><span class="s4">0</span><span class="s1">])</span>
+        <span class="s1">proba.append(p[</span><span class="s4">0</span><span class="s1">]*p[</span><span class="s4">1</span><span class="s1">])</span>
+        <span class="s1">proba.append(p[</span><span class="s4">0</span><span class="s1">]*p[</span><span class="s4">1</span><span class="s1">])</span>
+    <span class="s2">for </span><span class="s1">i </span><span class="s2">in </span><span class="s1">range(len(bigramme)):</span>
+        <span class="s1">mdp.append(bigramme.letters.iloc[i]+bigramme.letters.iloc[i])</span>
+        <span class="s1">proba.append(bigramme.frequency.iloc[i]+bigramme.frequency.iloc[i])</span>
+    <span class="s2">return </span><span class="s1">pd.DataFrame(dict(mdp=mdp</span><span class="s2">, </span><span class="s1">frequency=proba)).sort_values(by=</span><span class="s3">'frequency'</span><span class="s2">, </span><span class="s1">ascending=</span><span class="s2">False, </span><span class="s1">ignore_index=</span><span class="s2">True</span><span class="s1">)</span>
+
+<span class="s1">df_dictionary = generate_dictionary()</span>
+<span class="s0">#%% 
+# Attaques sur 1000 mots de passes</span>
+
+<span class="s1">nb_trial = </span><span class="s4">1000</span>
+<span class="s1">vec_nb_trials = np.full(nb_trial</span><span class="s2">, </span><span class="s1">-</span><span class="s4">1</span><span class="s1">)</span>
+<span class="s2">for </span><span class="s1">i </span><span class="s2">in </span><span class="s1">range(nb_trial):</span>
+    <span class="s1">passwrd = get_passwd()</span>
+    <span class="s2">try</span><span class="s1">:</span>
+        <span class="s1">index = df_dictionary[df_dictionary[</span><span class="s3">'mdp'</span><span class="s1">] ==passwrd].index.tolist()[</span><span class="s4">0</span><span class="s1">]</span>
+        <span class="s1">vec_nb_trials[i] = index</span>
+    <span class="s2">except</span><span class="s1">:</span>
+        <span class="s1">print(passwrd)</span>
+<span class="s0">#%% 
+</span><span class="s1">print(</span><span class="s3">f&quot;En moyenne, il y a </span><span class="s2">{</span><span class="s1">np.mean(vec_nb_trials)</span><span class="s2">} </span><span class="s3">appels.&quot;</span><span class="s1">)</span>
+<span class="s0">#%% 
+</span><span class="s1">minGBigramme/np.mean(vec_nb_trials)</span>
+<span class="s0">#%% md 
+</span><span class="s1">## Conclusions  
+ 
+- Définir des bonnes pratiques pour le défenseur, i.e. la personne cherchant à concevoir un système de génération de mots de passe ?  
+L'entropie étant maximale dans le cas d'un tirage uniforme, c'est le meilleur moyen de générer un mot de passe robuste. Il faut ensuite travailler avec la longueur du mot de passe. Une longueur de 8 lettres n'est pas suffisant car le mot de passe est crackable en environ 13h. En passant à 12 lettres nous arrivons à 1000 ans ce qui rend le mot de passe non crackable. En rajoutant les lettres majuscules, les chiffres et les caractères spéciaux, on obtient un mot de passe parfait bien mieux que le mot de passe caramel par exemple. 
+ 
+- Définir des bonnes pratiques pour l'attaquant, i.e. la personne essayant de trouver le mot de passe ? 
+  Pour réduire le nombre d'appels avant de décoder un mot de passe, l'attanquant à intérêt à exploiter les aprioris que l'on peut faire sur un mot de passe à savoir  : La plupart des gens vont utiliser des mots de passe facile à retenir donc des mots de leur langue. 
+  Construire sa recherche de mot de passe autour de cet apriori probabiliste permet de tester en priorité les combinaisons les plus probables. 
+  (Dans le cadre de ce TP nous nous limitons à l'association de lettres) 
+ 
+ 
+</span><span class="s0">#%% md 
+</span><span class="s1">## Un peu de lecture 
+Cet article montre comment des hackers, à partir de leaks de bases de mots de passes, peuvent rapidement arriver à trouver le votre: 
+https://arstechnica.com/information-technology/2013/05/how-crackers-make-minced-meat-out-of-your-passwords/ 
+</span></pre>
+</body>
+</html>
