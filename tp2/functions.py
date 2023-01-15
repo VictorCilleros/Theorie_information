@@ -18,21 +18,11 @@ def build_Z(R,S):
     return np.sum(im_Diff==0)
 
 def build_W(R,S):
-    cpt=0
-    S_c = S%2==0  # matrice de True si par et False si impair
+    S_c = S%2==0  # matrice de True si pair et False si impair
     R_c = R%2==0  # same
-    t_pair =((S_c.astype(int) - R_c.astype(int)) == -1)    # False -  True
-    t_impair = ((S_c.astype(int) - R_c.astype(int)) == 1)  # True - False
-    for elem in t_pair:
-        for value in elem:
-            if value:
-                cpt+=1
-
-    for elem_i in t_impair:
-        for value_i in elem_i:
-            if value_i:
-                cpt+=1
-    return cpt
+    t_pair =((S_c.astype(int) - R_c.astype(int)) == -1).astype(int)    # False -  True
+    t_impair = ((S_c.astype(int) - R_c.astype(int)) == 1).astype(int)  # True - False
+    return np.sum(t_impair)+np.sum(t_pair)
 
 def condition_X(r,s):
     if s%2==0 and r<s:
@@ -80,7 +70,7 @@ def resolve_2nd_deg(a,b,c):
         return (-b/(2*a),-b/(2*a))
     if delta>0:
         return ( (-b+np.sqrt(delta))/(2*a),  (-b-np.sqrt(delta))/(2*a)  )
-    if delta < 0:
+    if delta < 0:  # cas avec un problème d'estimation, ce n'est pas censé arriver
         return (0,0)
 
 def get_random_string(length):
@@ -97,8 +87,8 @@ def get_random_string(length):
 
 def décoder_taux_insertion(im_stego):
     # Get the image
-    pil_image = Image.open(stego_path)
-    im_array = np.asarray(pil_image)
+    #pil_image = Image.open(stego_path)
+    im_array = np.asarray(im_stego)
 
     Im = im_array[:,:,2]
 
@@ -115,7 +105,7 @@ def décoder_taux_insertion(im_stego):
 
     a = float(2*(Wp+Zp))  # beta^2
     b = float(2*(2*Xp-Pp))# beta
-    c = float(Vp+Wp-Xp)  # constant
+    c = float(Vp+Wp-Xp)   # constant
     
     beta = min(resolve_2nd_deg(a=a,b=b,c=c))
     if beta == 0:
@@ -148,25 +138,25 @@ def encoder_selon_clé(key,image_path = './red_fish.png'):
     #            Partie MESSAGE
     #******************************************
 
-    message_unicode = str(message)
+    #message_unicode = str(message)
     bits  = bin(int.from_bytes(message.encode(), 'big'))
     bits = bits[2:]  # ne prend pas les deux premiers
-    bit_string  = bin(int.from_bytes(message.encode(), 'big'))
-    n = int('0b'+bit_string[2:], 2)
-    n.to_bytes((n.bit_length() + 7) // 8, 'big').decode()
+    #bit_string  = bin(int.from_bytes(message.encode(), 'big'))
+    #n = int('0b'+bit_string[2:], 2)
+    #n.to_bytes((n.bit_length() + 7) // 8, 'big').decode()
 
     #******************************************
     #            Partie Clé
     #******************************************
 
-    key_unicode = str(key)
+    #key_unicode = str(key)
     key_int = hash(key) 
     nb_bits = len(bits)  # Taille du message
 
     #******************************************
     #            Partie INSERTION
     #******************************************
-    np.random.seed(np.mod(key_int,4294967295))
+    np.random.seed(np.mod(key_int,4294967295)) 
     index_perm = np.random.permutation(w*h)
     blue_perm = blue_channel_vec[index_perm]
     # Get the LSBs
